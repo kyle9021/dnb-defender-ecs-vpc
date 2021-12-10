@@ -2,15 +2,16 @@
 # either a private or public-facing subnet.
 
 resource "aws_subnet" "subnet" {
-  count             = length(var.cidrs)
+  count = length(var.cidrs)
 
   vpc_id            = var.vpc_id
   cidr_block        = element(var.cidrs, count.index)
   availability_zone = element(var.availability_zones, count.index)
 
-  tags              = {
+  tags = {
     Name        = "${var.name}_${element(var.availability_zones, count.index)}"
     Environment = var.environment
+    yor_trace   = "c196567c-82ec-4702-bf26-a33db4e503e8"
   }
 
 }
@@ -19,20 +20,21 @@ resource "aws_subnet" "subnet" {
 # routing table and add all the subnets to it. This allows us to easily create routing to
 # all the subnets at once. For example, when creating a route to the Internet Gateway.
 resource "aws_route_table" "subnet" {
-  count  = length(var.cidrs)  
-  
+  count = length(var.cidrs)
+
   vpc_id = var.vpc_id
 
-  tags   = {
+  tags = {
     Name        = "${var.name}_${element(var.availability_zones, count.index)}"
     Environment = var.environment
+    yor_trace   = "89704e9c-a4b6-45aa-bd76-0f0939e3edde"
   }
 
 }
 
 resource "aws_route_table_association" "subnet" {
-  count          = length(var.cidrs)
-  
+  count = length(var.cidrs)
+
   subnet_id      = element(aws_subnet.subnet.*.id, count.index)
   route_table_id = element(aws_route_table.subnet.*.id, count.index)
 }
